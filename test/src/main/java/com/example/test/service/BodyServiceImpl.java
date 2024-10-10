@@ -4,6 +4,7 @@ import com.example.test.entity.Body;
 import com.example.test.repository.BodyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,6 +20,7 @@ public class BodyServiceImpl implements BodyService{
     }
 
     @Override
+    @Transactional
     public void saveBody(List<Body> bodies) {
         for (Body body : bodies) {
             if (body.getBodyId() != null) {
