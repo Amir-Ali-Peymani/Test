@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<api context="/api" name="createNewApi" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="POST" uri-template="/test/{number}">
+        <inSequence>
+            <property name="number" expression="$ctx:uri.var.number"></property>
+            <property name="headerId" expression="$trp:id"></property>
+            <property name="payload" expression="json-eval($.)"></property>
+            <!-- Define inflow mediation logic here -->
+            <script language="js">
+                <![CDATA[
+                    var number = mc.getProperty('number');
+                    var headerId = mc.getProperty('headerId');
+                    var payload = JSON.parse(mc.getProperty('payload'));
+                    var found = false;
+                    for (var i = 0; i<payload.length; i++){
+                        if (payload[i].BodyId == headerId && payload[i].BodyIdNumber == number){
+                            mc.setPayloadJSON(payload[i]);
+                            found = true;
+                            mc.setProperty('found', found);
+                            break;
+                        }
+                    
+                    }
+                
+                ]]>
+            </script>
+            <filter source="$ctx:found" regex="true">
+                <then></then>
+                <else>
+                    <payloadFactory media-type="xml">
+                        <format> {"message":"not found"}</format>
+                        <args></args>
+                    </payloadFactory>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence>
+            <!-- Define outflow mediation logic here -->
+        </outSequence>
+        <faultSequence>
+            <!-- Define error handling mediation logic here -->
+        </faultSequence>
+    </resource>
+</api>
